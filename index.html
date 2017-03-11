@@ -30,15 +30,55 @@
   <script>
   var meeting = angular.module("meeting",['ngRoute','ngAria','ngAnimate','ngMessages','ngSanitize','ngMaterial']);
 
+  //Formate date dd/mm/yyyy
+  meeting.config(function($mdDateLocaleProvider)
+  {
+    $mdDateLocaleProvider.formatDate = function(date)
+    {
+      //if date was setted
+      if(!(angular.isUndefined(date) && date == null))
+      {
+        //get date proprieties
+        var day = date.getDate();
+        var monthIndex = date.getMonth() + 1;
+        var year = date.getFullYear();
+
+        //add 0 to day string
+        if(day < 10)
+        {
+          day = '0' + day;
+        }
+
+        //add 0 to month string
+        if(monthIndex < 10)
+        {
+          monthIndex = '0' + monthIndex;
+        }
+
+        //return correct date formate
+        return day + '/' + monthIndex  + '/' + year;
+
+      }
+      //return if date was not setted
+      else
+      {
+        return '';
+
+      }
+    };
+});
+
   meeting.controller("meetingCtrl", ['$scope', function($scope){
 
-
+    //select the iputs to add autocomplete by google api
     var input = document.getElementById('yourCity');
     var input2 = document.getElementById('theirCity')
 
+    //insert into inputs google api autocomplete
     var autocomplete = new google.maps.places.Autocomplete(input, { types: ['(cities)']});
     var autocomplete = new google.maps.places.Autocomplete(input2, { types: ['(cities)']});
 
+    $scope.cities = [];
 
   }]);
 
@@ -48,28 +88,39 @@
 <body ng-controller="meetingCtrl">
 
   <md-content>
-    <md-whiteframe class="md-whiteframe-8dp" layout="column" layout-align="center center">
+    <md-whiteframe class="md-whiteframe-8dp" layout="column" layout-align="center start">
 
-      <span class="md-display-2">Marcador de Reunião Internacional</span>
+      <span class="md-display-2" layout="row" layout-align="start center">Marcador de Reunião Internacional</span>
 
       <md-divider></md-divider>
 
-      <form name="meetingForm" layout="row" layout-align="space-around center" layout-fill>
-        <md-input-container>
+      <form name="meetingForm" layout="row" layout-align="space-between center" layout-fill>
+        <md-input-container flex="25">
           <label>Data da reunião</label>
-          <input type="text" ng-model="date" placeholder="Escolha a data da Reunião" />
+          <md-datepicker ng-model="dateMeeting" md-placeholder="Escolha a data"></md-datepicker>
         </md-input-container>
 
-        <md-input-container >
+        <md-input-container  >
           <label>Sua cidade</label>
-          <input id="yourCity" ng-model="yourCity" type="text" placeholder="Digite a localização"/>
+          <input id="yourCity" ng-model="cities[0].name" type="text" placeholder="Digite a localização"/>
         </md-input-container>
 
         <md-input-container>
           <label>Cidade da outra pessoa</label>
-          <input id="theirCity" ng-model="theirCity" type="text"  placeholder="Digite a localização"  />
+          <input id="theirCity" ng-model="cities[1].name" type="text"  placeholder="Digite a localização"  />
         </md-input-container>
       </form>
+
+      <span class="md-display-1" layout="row" la>Horário da reunião</span>
+
+      <div layout="column" class="meetingInfo">
+        <div ng-repeat="city in cities" layout="row">
+          <span style="color: #727272" class="md-body-2">{{city.name + " -"}} &nbsp</span>
+          <span class="md-body-1">{{dateMeeting | date: 'dd/MM/yyyy'}}</span>
+          <span class="md-body-2">{{city.hour}}</span>
+        </div>
+
+      </div>
 
     </md-whiteframe>
 
