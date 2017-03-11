@@ -1,0 +1,28 @@
+html, body{
+  background-color: rgb(79, 128, 156);
+}
+
+md-content {
+  background-color: inherit;
+  padding-top: 50px;
+}
+
+
+md-whiteframe {
+  background: white;
+  width: 896px;
+  margin: auto;
+  padding: 19px 11px;
+}
+
+md-divider {
+  width: 90%;
+}
+
+md-whiteframe > * {
+  margin-top: 10px;
+}
+
+md-input-container:not( .md-input-has-value ) input:not( :focus ) {
+     color: transparent;
+}
