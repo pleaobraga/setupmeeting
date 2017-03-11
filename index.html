@@ -15,15 +15,68 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
   <link rel="stylesheet" type="text/css" href="styles/app.css">
 
+
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPbTIwcRFCxFIALB4ayDB96lEA6wpJK-U&libraries=places"></script>
+
+
   <script src="node_modules/angular/angular.min.js"></script>
+  <script src="node_modules/angular-route/angular-route.min.js"></script>
   <script src="node_modules/angular-aria/angular-aria.min.js"></script>
   <script src="node_modules/angular-animate/angular-animate.min.js"></script>
   <script src="node_modules/angular-messages/angular-messages.min.js"></script>
   <script src="node_modules/angular-sanitize/angular-sanitize.min.js"></script>
   <script src="node_modules/angular-material/angular-material.min.js"></script>
 
+  <script>
+  var meeting = angular.module("meeting",['ngRoute','ngAria','ngAnimate','ngMessages','ngSanitize','ngMaterial']);
+
+  meeting.controller("meetingCtrl", ['$scope', function($scope){
+
+
+    var input = document.getElementById('yourCity');
+    var input2 = document.getElementById('theirCity')
+
+    var autocomplete = new google.maps.places.Autocomplete(input, { types: ['(cities)']});
+    var autocomplete = new google.maps.places.Autocomplete(input2, { types: ['(cities)']});
+
+
+  }]);
+
+  </script>
+
 </head>
-<body>
+<body ng-controller="meetingCtrl">
+
+  <md-content>
+    <md-whiteframe class="md-whiteframe-8dp" layout="column" layout-align="center center">
+
+      <span class="md-display-2">Marcador de Reunião Internacional</span>
+
+      <md-divider></md-divider>
+
+      <form name="meetingForm" layout="row" layout-align="space-around center" layout-fill>
+        <md-input-container>
+          <label>Data da reunião</label>
+          <input type="text" ng-model="date" placeholder="Escolha a data da Reunião" />
+        </md-input-container>
+
+        <md-input-container >
+          <label>Sua cidade</label>
+          <input id="yourCity" ng-model="yourCity" type="text" placeholder="Digite a localização"/>
+        </md-input-container>
+
+        <md-input-container>
+          <label>Cidade da outra pessoa</label>
+          <input id="theirCity" ng-model="theirCity" type="text"  placeholder="Digite a localização"  />
+        </md-input-container>
+      </form>
+
+    </md-whiteframe>
+
+  </md-content>
+
+
+
 
 
 
