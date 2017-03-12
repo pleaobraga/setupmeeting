@@ -95,7 +95,14 @@ module.exports = function (grunt){
         src: 'index-prod.html',
         dest: 'dist/index.html'
       }
+    },
+    sass: {
+    dist: {
+      files: {
+        'styles/app.css': 'styles/style.scss'
+      }
     }
+  }
 
   });
 
@@ -106,11 +113,12 @@ module.exports = function (grunt){
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-sass');
 
 
 
   grunt.registerTask('prod',['clean:all', 'concat:scripts', 'uglify', 'concat:libs','concat:all', 'cssmin', 'copy:all', 'clean:temp', 'connect:prod']);
-  grunt.registerTask('test',['connect:local']);
+  grunt.registerTask('local',['connect:local']);
 
 
 }
