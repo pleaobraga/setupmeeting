@@ -147,6 +147,8 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
 
             return;
           }
+
+          $scope.meeting  = 'timeExceeded';
         }
       },  true);
 
@@ -188,7 +190,7 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
 <body ng-controller="meetingCtrl">
 
   <md-content>
-    <md-whiteframe class="md-whiteframe-8dp" layout="column" layout-align="center start">
+    <md-whiteframe class="md-whiteframe-12dp" layout="column" layout-align="center start">
 
       <span class="md-display-2" layout="row" layout-align="start center">Marcador de Reunião Internacional</span>
 
@@ -197,32 +199,37 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
       <form name="meetingForm" layout="row" layout-align="space-between center" layout-fill>
         <md-input-container flex="25">
           <label>Data da reunião</label>
-          <md-datepicker ng-model="dateMeeting" md-placeholder="Escolha a data"></md-datepicker>
+          <md-datepicker  ng-model="dateMeeting" md-placeholder="Escolha a data" name="dateMeetingForm"></md-datepicker>
         </md-input-container>
 
         <md-input-container  >
           <label>Sua cidade</label>
-          <input ng-click="cities[0].timeZone = ''" id="yourCity" ng-model="cities[0].name" type="text" placeholder="Digite a localização"/>
+          <input  id="yourCity" type="text" name="yourCityForm" placeholder="Digite a localização"/>
+        </div>
+
         </md-input-container>
 
         <md-input-container>
           <label>Cidade da outra pessoa</label>
-          <input ng-click="cities[1].timeZone = ''" id="theirCity" ng-model="cities[1].name" type="text"  placeholder="Digite a localização"  />
+          <input  id="theirCity" type="text"  placeholder="Digite a localização"  />
         </md-input-container>
 
       </form>
 
 
-      <span ng-show="meeting" class="md-headline" layout="row" la>Horário da reunião</span>
+      <span ng-show="meeting==true" class="md-headline" layout="row">Horário da reunião</span>
 
-      <div layout="column" class="meetingInfo" ng-show="meeting">
+      <div layout="column" class="meetingInfo" ng-show="meeting==true">
         <div ng-repeat="city in citiesSorted" layout="row" layout-align="none center">
           <span style="color: #727272" class="md-body-2">{{city.name}} &nbsp - &nbsp </span>
           <span class="md-body-1">{{dateMeeting | date: 'dd/MM/yyyy'}}</span>
           <span class="md-body-2">{{city.hour}}</span>
         </div>
-
       </div>
+
+      <div layout="column" ng-show="meeting=='timeExceeded'" class="md-subhead time-exceeded">
+       A Reunião não poderá ocorrer pois a diferença de horario entre as cidades ultrapassa o horario comercial
+     </div>
 
     </md-whiteframe>
 

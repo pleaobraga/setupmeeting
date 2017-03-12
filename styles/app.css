@@ -5,6 +5,7 @@ html, body{
 md-content {
   background-color: inherit;
   padding-top: 50px;
+  height: 400px;
 }
 
 
@@ -29,6 +30,29 @@ md-whiteframe md-input-container:first-of-type {
   left: -16px;
 }
 
+.meetingInfo {
+  border: solid 1px;
+  border-radius: 5px;
+  width: 100%;
+  border-color: #E1E1E1;
+}
+
+.meetingInfo div {
+
+  padding: 7px;
+}
+
+.meetingInfo div:first-child {
+  border-bottom: solid 1px;
+  border-color: #E1E1E1;
+}
+
+
+
 .meetingInfo  span:last-of-type {
   margin-left: 10px;
+}
+
+.time-exceeded {
+  color: red;
 }
