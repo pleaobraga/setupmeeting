@@ -117,7 +117,7 @@ module.exports = function (grunt){
 
 
 
-  grunt.registerTask('prod',['clean:all', 'concat:scripts', 'uglify', 'concat:libs','concat:all', 'cssmin', 'copy:all', 'clean:temp', 'connect:prod']);
+  grunt.registerTask('prod',['clean:all', 'sass' ,'concat:scripts', 'uglify', 'concat:libs','concat:all', 'cssmin', 'copy:all', 'clean:temp', 'connect:prod']);
   grunt.registerTask('local',['connect:local']);
 
 
