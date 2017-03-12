@@ -7,18 +7,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <base href="/" />
 
+  <!-- css files include  -->
   <link rel="stylesheet" href="node_modules/angular-material/angular-material.css">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-  rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
   <link rel="stylesheet" type="text/css" href="styles/app.css">
 
+  <!-- include font Roboto from google -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
 
+
+  <!-- google api  -->
   <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPbTIwcRFCxFIALB4ayDB96lEA6wpJK-U&libraries=places"></script>
 
-
+  <!-- dependences installed by npm  -->
   <script src="node_modules/angular/angular.min.js"></script>
   <script src="node_modules/angular-route/angular-route.min.js"></script>
   <script src="node_modules/angular-resource/angular-resource.min.js"></script>
@@ -27,62 +28,47 @@
   <script src="node_modules/angular-messages/angular-messages.min.js"></script>
   <script src="node_modules/angular-sanitize/angular-sanitize.min.js"></script>
   <script src="node_modules/angular-material/angular-material.min.js"></script>
+  <script src="node_modules/moment/min/moment.min.js"></script>
 
   <script>
+
   var meeting = angular.module("meeting",['ngRoute','ngResource','ngAria','ngAnimate','ngMessages','ngSanitize','ngMaterial']);
 
   //Formate date dd/mm/yyyy
-  meeting.config(function($mdDateLocaleProvider)
+  meeting.config(function($mdDateLocaleProvider) {
+      $mdDateLocaleProvider.formatDate = function(date) {
+        return moment(date).format('DD/MM/YYYY');
+      };
+
+      $mdDateLocaleProvider.parseDate = function(dateString) {
+        var m = moment(dateString, 'DD/MM/YYYY', true);
+        return m.isValid() ? m.toDate() : new Date(NaN);
+      };
+    });
+
+  //using the google service to get the timezone from some city
+  meeting.factory('timeZoneService', ['$resource', function($resource)
   {
-    $mdDateLocaleProvider.formatDate = function(date)
+    return $resource('https://maps.googleapis.com/maps/api/timezone/json?location=:lat,:lng&timestamp=:time&key=AIzaSyAPbTIwcRFCxFIALB4ayDB96lEA6wpJK-U',
+    {lat: '@lat', lng: '@lng', time: '@time'},
     {
-      //if date was setted
-      if(!(angular.isUndefined(date) && date == null))
-      {
-        //get date proprieties
-        var day = date.getDate();
-        var monthIndex = date.getMonth() + 1;
-        var year = date.getFullYear();
-
-        //add 0 to day string
-        if(day < 10)
-        {
-          day = '0' + day;
-        }
-
-        //add 0 to month string
-        if(monthIndex < 10)
-        {
-          monthIndex = '0' + monthIndex;
-        }
-
-        //return correct date formate
-        return day + '/' + monthIndex  + '/' + year;
-
-      }
-      //return if date was not setted
-      else
-      {
-        return '';
-
-      }
-    };
-});
-
-meeting.factory('timeZoneService', ['$resource', function($resource)
-{
-  return $resource('https://maps.googleapis.com/maps/api/timezone/json?location=:lat,:lng&timestamp=:time&key=AIzaSyAPbTIwcRFCxFIALB4ayDB96lEA6wpJK-U',
-  {lat: '@lat', lng: '@lng', time: '@time'},
-  {
-    getTimeZone : {method: 'get'}
-  });
+      getTimeZone : {method: 'get'}
+    });
 
 
-}]);
+  }]);
 
   meeting.controller("meetingCtrl", ['$scope', 'timeZoneService', '$mdMedia', '$rootScope', function($scope, timeZoneService, $mdMedia, $rootScope){
 
+    //inject $mdMedia in view
     $rootScope.$mdMedia = $mdMedia;
+
+    //define teh date as today
+    $scope.dateMeeting = new Date();
+
+    //initialize the array cities
+    $scope.cities = [{name: '', lat: '', lng: '', timeZone: ''},{name: '', lat: '', lng: '', timeZone: ''}];
+
 
     //select the iputs to add autocomplete by google api
     var input = document.getElementById('yourCity');
@@ -92,8 +78,7 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
     var autocomplete1 = new google.maps.places.Autocomplete(input, { types: ['(cities)']});
     var autocomplete2 = new google.maps.places.Autocomplete(input2, { types: ['(cities)']});
 
-    $scope.cities = [{name: '', lat: '', lng: '', timeZone: ''},{name: '', lat: '', lng: '', timeZone: ''}];
-
+    //pickin up the informations by yourCity
     google.maps.event.addListener(autocomplete1, 'place_changed', function ()
     {
       var place =  autocomplete1.getPlace()
@@ -103,6 +88,7 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
        $scope.getTimeZone($scope.cities[0]);
     });
 
+    //pickin up the informations by theirCity
     google.maps.event.addListener(autocomplete2, 'place_changed', function ()
     {
       var place =  autocomplete2.getPlace()
@@ -112,31 +98,46 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
        $scope.getTimeZone($scope.cities[1]);
     });
 
+    //this function is acted when the two timezones were setted up and the calculations begin
     $scope.$watch('cities',
       function()
       {
         if($scope.cities[0].timeZone != '' &&  $scope.cities[1].timeZone != '')
         {
+          //create a new variable to not subscribe the $scope.cities
           $scope.citiesSorted = angular.copy($scope.cities);
 
+          //sort the vector by timezone
           $scope.citiesSorted.sort(function(a,b){return a.timeZone-b.timeZone});
 
+          //verify if the diferences between timezones is into the comercial hour
           if($scope.citiesSorted[1].timeZone - $scope.citiesSorted[0].timeZone <= 8)
           {
+            //set the hour as 9:00 AM to smaller timezone
             $scope.citiesSorted[0].hour = '9:00 AM';
 
-            if($scope.citiesSorted[1].timeZone > 0 &&  $scope.citiesSorted[0].timeZone < 0)
+            //verify if the bigger timezone is positive and smaller is negative
+            if($scope.citiesSorted[1].timeZone > 0 && $scope.citiesSorted[0].timeZone < 0)
             {
+                //set the bigest timezone as  9h + diferences between the timezones ajusting -1 hour in that case
                 $scope.citiesSorted[1].hour = 9 + $scope.citiesSorted[1].timeZone - $scope.citiesSorted[0].timeZone - 1;
             }
             else
             {
+              //set the bigest timezone as  9h + diferences between the timezones
               $scope.citiesSorted[1].hour = 9 + $scope.citiesSorted[1].timeZone - $scope.citiesSorted[0].timeZone;
             }
 
-            if($scope.citiesSorted[1].hour >= 12)
+            //ajust the formate date if it was bigger than 11h
+            if($scope.citiesSorted[1].hour > 12)
             {
               $scope.citiesSorted[1].hour = ($scope.citiesSorted[1].hour - 12) + ':00 PM';
+
+            }
+            //add the formate date
+            else if($scope.citiesSorted[1].hour == 12)
+            {
+              $scope.citiesSorted[1].hour += ':00 PM'
 
             }
             else
@@ -144,33 +145,33 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
               $scope.citiesSorted[1].hour += ':00 AM';
 
             }
-
+            //show the answer
             $scope.meeting = true;
 
             return;
           }
-
+          //show the message error
           $scope.meeting  = 'timeExceeded';
         }
       },  true);
 
-
-
-
-
-
+    // this function return the diferece between a city time to utc time
     $scope.getTimeZone = function(city)
     {
+
+      //getting the date informations
       var year =  $scope.dateMeeting.getFullYear();
       var day = $scope.dateMeeting.getDate();
       var month =  $scope.dateMeeting.getMonth() + 1;
 
-
+      //create a date with hour like 9:00
       var time = Math.floor(new Date(year,month,day,9,0).getTime()/1000);
 
+      //get the timezone
       timeZoneService.getTimeZone({lat:city.lat, lng: city.lng, time: time},
       function(response)
       {
+        //convert the answer to seconds
         city.timeZone = (response.dstOffset + response.rawOffset)/3600;
 
         console.log(response);
@@ -195,42 +196,50 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
     <md-whiteframe class="md-whiteframe-12dp" layout="column">
 
       <div class="text-center" ng-class="{'md-display-2' : $mdMedia('gt-sm'),'md-display-1': $mdMedia('gt-xs'), 'font-title-xs': $mdMedia('xs')}" layout="row" layout-align-gt-sm="start center" layout-align-gt-xs="center center">Marcador de Reunião Internacional</div>
+
       <md-divider></md-divider>
 
+      <!--set up date your city and their city -->
       <form name="meetingForm" layout-gt-xs="column" layout-xs="column" layout-gt-sm="row" layout-align="space-between center" layout-fill>
+
+        <!--set up date-->
         <md-input-container flex-gt-sm="25" flex-gt-xs="100" flex-xs="100" layout-align-gt-xs="center center">
           <label>Data da reunião</label>
-          <md-datepicker  ng-model="dateMeeting" md-placeholder="Escolha a data" name="dateMeetingForm"></md-datepicker>
+          <md-datepicker  ng-model="dateMeeting" md-placeholder="Escolha a data" name="dateMeetingForm" md-open-on-focus="true"></md-datepicker>
         </md-input-container>
 
+        <!--set up your city -->
         <md-input-container  flex-gt-sm="35" flex-gt-xs="100" flex-xs="100">
           <label>Sua cidade</label>
           <input  id="yourCity" type="text" name="yourCityForm" placeholder="Digite a localização"/>
-        </div>
-
         </md-input-container>
 
+        <!--set up  their city -->
         <md-input-container flex-gt-sm="35" flex-gt-xs="100" flex-xs="100">
           <label>Cidade da outra pessoa</label>
           <input  id="theirCity" type="text"  placeholder="Digite a localização"  />
         </md-input-container>
-
       </form>
 
-
+      <!--meeting time -->
       <span ng-show="meeting==true" class="md-headline" layout="row" layout-align-gt-xs="center center" layout-align-xs="center center" layout-align-gt-sm="start center">Horário da reunião</span>
 
+      <!--show the cities date and time-->
       <div layout="column" class="meetingInfo" ng-show="meeting==true">
         <div ng-repeat="city in citiesSorted" layout-gt-xs="row" layout-xs="column" layout-align-xs="start start" layout-align-gt-sm="start center" layout-align-gt-xs="center center" >
+          <!--show the cities name-->
           <span style="color: #727272" class="md-body-2">{{city.name}}</span>
           <span hide-xs>&nbsp - &nbsp </span>
           <span layout="row" layout-align="start center">
+            <!--show the date-->
             <span class="md-body-1"> {{dateMeeting | date: 'dd/MM/yyyy'}}</span>
+            <!--show the hour-->
             <span class="md-body-2">{{city.hour}}</span>
-        </span>
+          </span>
         </div>
       </div>
 
+      <!--error message-->
       <div layout="column" ng-show="meeting=='timeExceeded'" class="md-subhead time-exceeded ">
        A Reunião não poderá ocorrer pois a diferença de horario entre as cidades ultrapassa o horario comercial
      </div>
