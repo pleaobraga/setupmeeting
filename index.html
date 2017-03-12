@@ -80,7 +80,9 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
 
 }]);
 
-  meeting.controller("meetingCtrl", ['$scope', 'timeZoneService', function($scope, timeZoneService){
+  meeting.controller("meetingCtrl", ['$scope', 'timeZoneService', '$mdMedia', '$rootScope', function($scope, timeZoneService, $mdMedia, $rootScope){
+
+    $rootScope.$mdMedia = $mdMedia;
 
     //select the iputs to add autocomplete by google api
     var input = document.getElementById('yourCity');
@@ -190,26 +192,25 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
 <body ng-controller="meetingCtrl">
 
   <md-content>
-    <md-whiteframe class="md-whiteframe-12dp" layout="column" layout-align="center start">
+    <md-whiteframe class="md-whiteframe-12dp" layout="column">
 
-      <span class="md-display-2" layout="row" layout-align="start center">Marcador de Reunião Internacional</span>
-
+      <div class="text-center" ng-class="{'md-display-2' : $mdMedia('gt-sm'),'md-display-1': $mdMedia('gt-xs') ||$mdMedia('xs')}" layout="row" layout-align-gt-sm="start center" layout-align-gt-xs="center center">Marcador de Reunião Internacional</div>
       <md-divider></md-divider>
 
-      <form name="meetingForm" layout="row" layout-align="space-between center" layout-fill>
-        <md-input-container flex="25">
+      <form name="meetingForm" layout-gt-xs="column" layout-xs="column" layout-gt-sm="row" layout-align="space-between center" layout-fill>
+        <md-input-container flex-gt-sm="25" flex-gt-xs="100" flex-xs="100" layout-align-gt-xs="center center">
           <label>Data da reunião</label>
           <md-datepicker  ng-model="dateMeeting" md-placeholder="Escolha a data" name="dateMeetingForm"></md-datepicker>
         </md-input-container>
 
-        <md-input-container  >
+        <md-input-container  flex="35" flex-gt-xs="100" flex-xs="100">
           <label>Sua cidade</label>
           <input  id="yourCity" type="text" name="yourCityForm" placeholder="Digite a localização"/>
         </div>
 
         </md-input-container>
 
-        <md-input-container>
+        <md-input-container flex="35" flex-gt-xs="100" flex-xs="100">
           <label>Cidade da outra pessoa</label>
           <input  id="theirCity" type="text"  placeholder="Digite a localização"  />
         </md-input-container>
@@ -217,17 +218,20 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
       </form>
 
 
-      <span ng-show="meeting==true" class="md-headline" layout="row">Horário da reunião</span>
+      <span ng-show="meeting==true" class="md-headline" layout="row" layout-align-gt-xs="center center" layout-align-xs="center center" layout-align-gt-sm="start center">Horário da reunião</span>
 
       <div layout="column" class="meetingInfo" ng-show="meeting==true">
-        <div ng-repeat="city in citiesSorted" layout="row" layout-align="none center">
-          <span style="color: #727272" class="md-body-2">{{city.name}} &nbsp - &nbsp </span>
-          <span class="md-body-1">{{dateMeeting | date: 'dd/MM/yyyy'}}</span>
-          <span class="md-body-2">{{city.hour}}</span>
+        <div ng-repeat="city in citiesSorted" layout-gt-xs="row" layout-xs="column" layout-align-xs="start start" layout-align-gt-sm="start center" layout-align-gt-xs="center center" >
+          <span style="color: #727272" class="md-body-2">{{city.name}}</span>
+          <span hide-xs>&nbsp - &nbsp </span>
+          <span layout="row" layout-align="start center">
+            <span class="md-body-1"> {{dateMeeting | date: 'dd/MM/yyyy'}}</span>
+            <span class="md-body-2">{{city.hour}}</span>
+        </span>
         </div>
       </div>
 
-      <div layout="column" ng-show="meeting=='timeExceeded'" class="md-subhead time-exceeded">
+      <div layout="column" ng-show="meeting=='timeExceeded'" class="md-subhead time-exceeded ">
        A Reunião não poderá ocorrer pois a diferença de horario entre as cidades ultrapassa o horario comercial
      </div>
 

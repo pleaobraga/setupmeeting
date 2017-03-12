@@ -49,10 +49,70 @@ md-whiteframe md-input-container:first-of-type {
 
 
 
-.meetingInfo  span:last-of-type {
+.meetingInfo  span span:last-of-type {
   margin-left: 10px;
 }
 
 .time-exceeded {
   color: red;
+  text-align: center
+}
+
+@media screen and (min-width: 960px){
+
+}
+
+
+
+@media screen and (max-width: 960px){
+
+  md-whiteframe {
+    width: 500px;
+    padding: 20px 50px 30px 50px;
+  }
+
+  md-input-container {
+    width: 100%;
+  }
+
+  md-whiteframe md-input-container:first-of-type {
+    margin-left: 203px;
+  }
+
+  md-content {
+    padding-top: 24px;
+    height: auto;
+  }
+
+  .text-center{
+    text-align: center;
+  }
+
+  .meetingInfo  span:first-of-type {
+    max-width: 195px;
+  }
+
+}
+
+
+
+@media screen and (max-width: 600px){
+
+  md-content{
+    height: 750px;
+  }
+
+  md-whiteframe{
+    width: 310px;
+    padding: 7px 30px 17px 30px;
+  }
+
+  md-whiteframe md-input-container:first-of-type {
+    margin-left: 61px;
+  }
+
+  .meetingInfo  span:only-of-type {
+    width: 100%;
+  }
+
 }
