@@ -31,19 +31,18 @@ md-whiteframe md-input-container:first-of-type {
 }
 
 .meetingInfo {
-  border: solid 1px;
+  border: solid 2px;
   border-radius: 5px;
   width: 100%;
   border-color: #E1E1E1;
 }
 
 .meetingInfo div {
-
   padding: 7px;
 }
 
 .meetingInfo div:first-child {
-  border-bottom: solid 1px;
+  border-bottom: solid 2px;
   border-color: #E1E1E1;
 }
 

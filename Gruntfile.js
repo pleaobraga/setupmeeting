@@ -26,12 +26,74 @@ module.exports = function (grunt){
           }
         }
       }
+    },
+    clean:{
+      temp: ['dist/js/libs.min.js', 'dist/js/scripts.js', 'dist/js/scripts.min.js'],
+      all: ['dist/']
+    },
+    concat:{
+      scripts: {
+        src: [
+          'js/app.js',
+          'js/timezoneService.js',
+          'js/meetingCtrl.js'
+        ],
+        dest: 'dist/js/scripts.js'
+      },
+      libs: {
+        src: [
+          'node_modules/angular/angular.min.js',
+          'node_modules/angular-route/angular-route.min.js',
+          'node_modules/angular-resource/angular-resource.min.js',
+          'node_modules/angular-aria/angular-aria.min.js',
+          'node_modules/angular-animate/angular-animate.min.js',
+          'node_modules/angular-messages/angular-messages.min.js',
+          'node_modules/angular-sanitize/angular-sanitize.min.js',
+          'node_modules/angular-material/angular-material.min.js',
+          'node_modules/moment/min/moment.min.js'
+        ],
+        dest: 'dist/js/libs.min.js'
+      },
+      all: {
+        src: ['dist/js/libs.min.js','dist/js/scripts.min.js'],
+        dest: 'dist/js/all.min.js'
+      }
+    },
+    uglify: {
+      scripts:{
+        src: ['dist/js/scripts.js'],
+        dest: 'dist/js/scripts.min.js'
+      }
+    },
+    cssmin:{
+      all: {
+        src: [
+          'node_modules/angular-material/angular-material.css',
+          'styles/app.css'
+        ],
+        dest: 'dist/css/styles.min.css'
+      }
+    },
+    copy: {
+      all: {
+        src: 'index-prod.html',
+        dest: 'dist/index.html'
+      }
     }
 
   });
 
   grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-htmlmin');
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-copy');
 
-  grunt.registerTask('default',['connect']);
+
+
+  grunt.registerTask('default',['clean:all', 'concat:scripts', 'uglify', 'concat:libs','concat:all', 'cssmin', 'copy:all', 'clean:temp'  ]);
+
 
 }
