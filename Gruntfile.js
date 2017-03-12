@@ -14,10 +14,23 @@ module.exports = function (grunt){
             return middlewares;
         }
     },
-      server: {
+      local: {
         options: {
           hostname: '*',
           port: 8080,
+          keepalive: true,
+          open:
+          {
+            target: 'http://localhost:8080', // target url to open
+            chrome: 'open', // name of the app that opens, ie: open, start, xdg-open
+          }
+        }
+      },
+      prod: {
+        options: {
+          hostname: '*',
+          port: 8080,
+          base: 'dist/',
           keepalive: true,
           open:
           {
@@ -60,6 +73,9 @@ module.exports = function (grunt){
       }
     },
     uglify: {
+      options: {
+        mangle: false
+      },
       scripts:{
         src: ['dist/js/scripts.js'],
         dest: 'dist/js/scripts.min.js'
@@ -93,7 +109,8 @@ module.exports = function (grunt){
 
 
 
-  grunt.registerTask('default',['clean:all', 'concat:scripts', 'uglify', 'concat:libs','concat:all', 'cssmin', 'copy:all', 'clean:temp'  ]);
+  grunt.registerTask('prod',['clean:all', 'concat:scripts', 'uglify', 'concat:libs','concat:all', 'cssmin', 'copy:all', 'clean:temp', 'connect:prod']);
+  grunt.registerTask('test',['connect:local']);
 
 
 }
