@@ -21,6 +21,7 @@
 
   <script src="node_modules/angular/angular.min.js"></script>
   <script src="node_modules/angular-route/angular-route.min.js"></script>
+  <script src="node_modules/angular-resource/angular-resource.min.js"></script>
   <script src="node_modules/angular-aria/angular-aria.min.js"></script>
   <script src="node_modules/angular-animate/angular-animate.min.js"></script>
   <script src="node_modules/angular-messages/angular-messages.min.js"></script>
@@ -28,7 +29,7 @@
   <script src="node_modules/angular-material/angular-material.min.js"></script>
 
   <script>
-  var meeting = angular.module("meeting",['ngRoute','ngAria','ngAnimate','ngMessages','ngSanitize','ngMaterial']);
+  var meeting = angular.module("meeting",['ngRoute','ngResource','ngAria','ngAnimate','ngMessages','ngSanitize','ngMaterial']);
 
   //Formate date dd/mm/yyyy
   meeting.config(function($mdDateLocaleProvider)
@@ -68,18 +69,117 @@
     };
 });
 
-  meeting.controller("meetingCtrl", ['$scope', function($scope){
+meeting.factory('timeZoneService', ['$resource', function($resource)
+{
+  return $resource('https://maps.googleapis.com/maps/api/timezone/json?location=:lat,:lng&timestamp=:time&key=AIzaSyAPbTIwcRFCxFIALB4ayDB96lEA6wpJK-U',
+  {lat: '@lat', lng: '@lng', time: '@time'},
+  {
+    getTimeZone : {method: 'get'}
+  });
+
+
+}]);
+
+  meeting.controller("meetingCtrl", ['$scope', 'timeZoneService', function($scope, timeZoneService){
 
     //select the iputs to add autocomplete by google api
     var input = document.getElementById('yourCity');
     var input2 = document.getElementById('theirCity')
 
     //insert into inputs google api autocomplete
-    var autocomplete = new google.maps.places.Autocomplete(input, { types: ['(cities)']});
-    var autocomplete = new google.maps.places.Autocomplete(input2, { types: ['(cities)']});
+    var autocomplete1 = new google.maps.places.Autocomplete(input, { types: ['(cities)']});
+    var autocomplete2 = new google.maps.places.Autocomplete(input2, { types: ['(cities)']});
 
-    $scope.cities = [];
+    $scope.cities = [{name: '', lat: '', lng: '', timeZone: ''},{name: '', lat: '', lng: '', timeZone: ''}];
 
+    google.maps.event.addListener(autocomplete1, 'place_changed', function ()
+    {
+      var place =  autocomplete1.getPlace()
+       $scope.cities[0].lat = place.geometry.location.lat();
+       $scope.cities[0].lng = place.geometry.location.lng();
+       $scope.cities[0].name = place.formatted_address;
+       $scope.getTimeZone($scope.cities[0]);
+    });
+
+    google.maps.event.addListener(autocomplete2, 'place_changed', function ()
+    {
+      var place =  autocomplete2.getPlace()
+       $scope.cities[1].lat = place.geometry.location.lat();
+       $scope.cities[1].lng = place.geometry.location.lng();
+       $scope.cities[1].name = place.formatted_address;
+       $scope.getTimeZone($scope.cities[1]);
+    });
+
+    $scope.$watch('cities',
+      function()
+      {
+        if($scope.cities[0].timeZone != '' &&  $scope.cities[1].timeZone != '')
+        {
+          $scope.citiesSorted = angular.copy($scope.cities);
+
+          $scope.citiesSorted.sort(function(a,b){return a.timeZone-b.timeZone});
+
+          if($scope.citiesSorted[1].timeZone - $scope.citiesSorted[0].timeZone <= 8)
+          {
+            $scope.citiesSorted[0].hour = '9:00 AM';
+
+            if($scope.citiesSorted[1].timeZone > 0 &&  $scope.citiesSorted[0].timeZone < 0)
+            {
+                $scope.citiesSorted[1].hour = 9 + $scope.citiesSorted[1].timeZone - $scope.citiesSorted[0].timeZone - 1;
+            }
+            else
+            {
+              $scope.citiesSorted[1].hour = 9 + $scope.citiesSorted[1].timeZone - $scope.citiesSorted[0].timeZone;
+            }
+
+            if($scope.citiesSorted[1].hour >= 12)
+            {
+              $scope.citiesSorted[1].hour = ($scope.citiesSorted[1].hour - 12) + ':00 PM';
+
+            }
+            else
+            {
+              $scope.citiesSorted[1].hour += ':00 AM';
+
+            }
+
+            $scope.meeting = true;
+
+            return;
+          }
+        }
+      },  true);
+
+
+
+
+
+
+    $scope.getTimeZone = function(city)
+    {
+      var year =  $scope.dateMeeting.getFullYear();
+      var day = $scope.dateMeeting.getDate();
+      var month =  $scope.dateMeeting.getMonth() + 1;
+
+
+      var time = Math.floor(new Date(year,month,day,9,0).getTime()/1000);
+
+      timeZoneService.getTimeZone({lat:city.lat, lng: city.lng, time: time},
+      function(response)
+      {
+        city.timeZone = (response.dstOffset + response.rawOffset)/3600;
+
+        console.log(response);
+
+      },
+      function(response)
+      {
+        city.timeZone = '';
+
+        console.log(response);
+
+      });
+    };
   }]);
 
   </script>
@@ -102,20 +202,22 @@
 
         <md-input-container  >
           <label>Sua cidade</label>
-          <input id="yourCity" ng-model="cities[0].name" type="text" placeholder="Digite a localização"/>
+          <input ng-click="cities[0].timeZone = ''" id="yourCity" ng-model="cities[0].name" type="text" placeholder="Digite a localização"/>
         </md-input-container>
 
         <md-input-container>
           <label>Cidade da outra pessoa</label>
-          <input id="theirCity" ng-model="cities[1].name" type="text"  placeholder="Digite a localização"  />
+          <input ng-click="cities[1].timeZone = ''" id="theirCity" ng-model="cities[1].name" type="text"  placeholder="Digite a localização"  />
         </md-input-container>
+
       </form>
 
-      <span class="md-display-1" layout="row" la>Horário da reunião</span>
 
-      <div layout="column" class="meetingInfo">
-        <div ng-repeat="city in cities" layout="row">
-          <span style="color: #727272" class="md-body-2">{{city.name + " -"}} &nbsp</span>
+      <span ng-show="meeting" class="md-headline" layout="row" la>Horário da reunião</span>
+
+      <div layout="column" class="meetingInfo" ng-show="meeting">
+        <div ng-repeat="city in citiesSorted" layout="row" layout-align="none center">
+          <span style="color: #727272" class="md-body-2">{{city.name}} &nbsp - &nbsp </span>
           <span class="md-body-1">{{dateMeeting | date: 'dd/MM/yyyy'}}</span>
           <span class="md-body-2">{{city.hour}}</span>
         </div>
@@ -125,11 +227,6 @@
     </md-whiteframe>
 
   </md-content>
-
-
-
-
-
 
 </body>
 

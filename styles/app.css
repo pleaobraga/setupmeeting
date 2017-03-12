@@ -28,3 +28,7 @@ md-whiteframe md-input-container:first-of-type {
   position: relative;
   left: -16px;
 }
+
+.meetingInfo  span:last-of-type {
+  margin-left: 10px;
+}
