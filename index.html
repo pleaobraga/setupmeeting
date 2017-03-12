@@ -194,7 +194,7 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
   <md-content>
     <md-whiteframe class="md-whiteframe-12dp" layout="column">
 
-      <div class="text-center" ng-class="{'md-display-2' : $mdMedia('gt-sm'),'md-display-1': $mdMedia('gt-xs') ||$mdMedia('xs')}" layout="row" layout-align-gt-sm="start center" layout-align-gt-xs="center center">Marcador de Reunião Internacional</div>
+      <div class="text-center" ng-class="{'md-display-2' : $mdMedia('gt-sm'),'md-display-1': $mdMedia('gt-xs'), 'font-title-xs': $mdMedia('xs')}" layout="row" layout-align-gt-sm="start center" layout-align-gt-xs="center center">Marcador de Reunião Internacional</div>
       <md-divider></md-divider>
 
       <form name="meetingForm" layout-gt-xs="column" layout-xs="column" layout-gt-sm="row" layout-align="space-between center" layout-fill>
@@ -203,14 +203,14 @@ meeting.factory('timeZoneService', ['$resource', function($resource)
           <md-datepicker  ng-model="dateMeeting" md-placeholder="Escolha a data" name="dateMeetingForm"></md-datepicker>
         </md-input-container>
 
-        <md-input-container  flex="35" flex-gt-xs="100" flex-xs="100">
+        <md-input-container  flex-gt-sm="35" flex-gt-xs="100" flex-xs="100">
           <label>Sua cidade</label>
           <input  id="yourCity" type="text" name="yourCityForm" placeholder="Digite a localização"/>
         </div>
 
         </md-input-container>
 
-        <md-input-container flex="35" flex-gt-xs="100" flex-xs="100">
+        <md-input-container flex-gt-sm="35" flex-gt-xs="100" flex-xs="100">
           <label>Cidade da outra pessoa</label>
           <input  id="theirCity" type="text"  placeholder="Digite a localização"  />
         </md-input-container>

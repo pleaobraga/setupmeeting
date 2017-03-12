@@ -58,6 +58,12 @@ md-whiteframe md-input-container:first-of-type {
   text-align: center
 }
 
+.font-title-xs{
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 32px;
+}
+
 @media screen and (min-width: 960px){
 
 }
@@ -81,7 +87,7 @@ md-whiteframe md-input-container:first-of-type {
 
   md-content {
     padding-top: 24px;
-    height: auto;
+    height: 640px;
   }
 
   .text-center{
